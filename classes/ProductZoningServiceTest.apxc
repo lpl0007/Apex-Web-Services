@@ -1,0 +1,46 @@
+@IsTest
+private class ProductZoningServiceTest {
+    @TestSetup
+    static void setup() {
+        // Create Product
+        Product2 testProduct = new Product2(Name = 'Test Product', ProductCode = 'GC1020', Family = 'TestFamily');
+        insert testProduct;
+    }
+
+    @IsTest
+    static void testGetPermissibleFlyZone() {
+        RestRequest request = new RestRequest();
+        request.requestURI = '/services/apexrest/ProductZoning/';
+        request.addParameter('ProductCode', 'GC1020');
+        request.httpMethod = 'GET';
+        request.headers.put('CountryCode', 'US');
+        RestContext.request = request;
+        RestContext.response = new RestResponse();
+
+        String response = ProductZoningService.getPermissibleFlyZone();
+        System.assertEquals('Confirm with the local authorities', response);
+
+        request.headers.put('CountryCode', 'DE');
+        response = ProductZoningService.getPermissibleFlyZone();
+        System.assertEquals('Confirm with the local authorities', response);
+
+        request.headers.put('CountryCode', 'FR');
+        response = ProductZoningService.getPermissibleFlyZone();
+        System.assertEquals('Confirm with the local authorities', response);
+
+        request = new RestRequest();
+        request.requestURI = '/services/apexrest/ProductZoning/';
+        request.httpMethod = 'GET';
+        RestContext.request = request;
+        response = ProductZoningService.getPermissibleFlyZone();
+        System.assertEquals('ProductCode is missing or doesn\'t exist', response);
+
+        request = new RestRequest();
+        request.requestURI = '/services/apexrest/ProductZoning/';
+        request.addParameter('ProductCode', 'INVALID');
+        request.httpMethod = 'GET';
+        RestContext.request = request;
+        response = ProductZoningService.getPermissibleFlyZone();
+        System.assertEquals('ProductCode is missing or doesn\'t exist', response);
+    }
+}
